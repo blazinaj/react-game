@@ -2,47 +2,48 @@ import {Vector3} from "@babylonjs/core";
 import {useEffect, useState} from "react";
 
 export const useCharacterController = (inputController) => {
-  //const values
+
   const PLAYER_SPEED = 0.45;
-  const JUMP_FORCE = 0.80;
-  const GRAVITY = -2.8;
-  const DASH_FACTOR = 2.5;
-  const DASH_TIME = 10; //how many frames the dash lasts
-  const DOWN_TILT = new Vector3(0.8290313946973066, 0, 0);
-  const ORIGINAL_TILT = new Vector3(0.5934119456780721, 0, 0);
 
-  //player movement vars
-  const [deltaTime, setDeltaTime] = useState(0);
-  const [h, setH] = useState(0);
-  const [v, setV] = useState(0);
-
-  const [moveDirection, setMoveDirection] = useState(new Vector3());
-  const [inputAmt, setInputAmt] = useState(0);
-
+  /**
+   * The current Character position in the scene
+   */
   const [position, setPosition] = useState(new Vector3(0, 1, 0));
 
-  const updatePosition = (inputMap) => {
-    let x = position.x;
-    let y = position.y;
-    let z = position.z;
+  /**
+   * This function handles the position changes
+   * @returns {Vector3}
+   */
+  const handlePositionChange = () => {
+    let {x, y, z} = position;
+    const {inputMap} = inputController;
 
-    if (inputMap) {
-      if (inputMap["w"]) {
-        x++
-      }
-
-      if (inputMap["a"]) {
-        z++
-      }
-
-      setPosition(new Vector3(x, y, z));
+    if (inputMap.d) {
+      x += PLAYER_SPEED
     }
-    // setMoveDirection(Vector3.Zero())
+    if (inputMap.a) {
+      x -= PLAYER_SPEED
+    }
+    if (inputMap.w) {
+      z += PLAYER_SPEED
+    }
+    if (inputMap.s) {
+      z -= PLAYER_SPEED
+    }
+    return new Vector3(x, y, z)
   }
 
+  /**
+   * Update Character position when keyboard input changes
+   */
   useEffect(() => {
     if (inputController.inputMap) {
-      updatePosition(inputController.inputMap);
+      if (inputController) {
+        // final movement that takes into consideration the inputs
+        setPosition(position => {
+          return handlePositionChange()
+        });
+      }
     }
   }, [inputController.inputMap])
 
